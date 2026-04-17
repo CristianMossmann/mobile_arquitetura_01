@@ -2,52 +2,30 @@ class ProductModel {
   final int id;
   final String title;
   final double price;
-  final bool isFavorited;
-
-  ProductModel({
+  final String image;
+ 
+  ProductModel ({
     required this.id,
     required this.title,
     required this.price,
-    this.isFavorited = false,
+    required this.image,
   });
-
-  factory ProductModel.fromJson(Map<String, dynamic> json) {
-    return ProductModel(
-      id: json["id"],
-      title: json["title"],
-      price: json["price"].toDouble(),
-      isFavorited: false,
-    );
-  }
-  factory ProductModel.fromCache(Map<String, dynamic> json) {
-    return ProductModel(
-      id: json["id"],
-      title: json["title"],
-      price: json["price"].toDouble(),
-      isFavorited: json["isFavorited"] ?? false,
+ 
+  factory ProductModel.fromJson(Map <String, dynamic> json) {
+    return ProductModel (
+      id: json["id"] ?? 0,
+      title: json["title"] ?? "",
+      price: (json["price"] ?? 0).toDouble(),
+      image: json["image"] ?? "",
     );
   }
 
-  Map<String, dynamic> toCache() {
+  Map<String, dynamic> toJson() {
     return {
       "id": id,
       "title": title,
       "price": price,
-      "isFavorited": isFavorited,
+      "image": image,
     };
-  }
-
-  ProductModel copyWith({
-    int? id,
-    String? title,
-    double? price,
-    bool? isFavorited,
-  }) {
-    return ProductModel(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      price: price ?? this.price,
-      isFavorited: isFavorited ?? this.isFavorited,
-    );
   }
 }

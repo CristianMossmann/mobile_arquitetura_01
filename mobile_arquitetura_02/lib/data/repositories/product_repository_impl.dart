@@ -1,8 +1,9 @@
-import 'package:mobile_arquitetura_02/core/errors/failure.dart';
-import 'package:mobile_arquitetura_02/data/datasources/product_cache_datasource.dart';
-import 'package:mobile_arquitetura_02/data/datasources/product_remote_datasource.dart';
-import 'package:mobile_arquitetura_02/domain/entities/product.dart';
-import 'package:mobile_arquitetura_02/domain/repositories/product_repository.dart';
+import 'package:product_app/core/errors/failure.dart';
+import 'package:product_app/data/datasources/product_cache_datasource.dart';
+import 'package:product_app/data/datasources/product_remote_datasource.dart';
+import 'package:product_app/data/models/product_model.dart';
+import 'package:product_app/domain/entities/product.dart';
+import 'package:product_app/domain/repositories/product_repository.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
   final ProductRemoteDatasource remote;
@@ -10,61 +11,84 @@ class ProductRepositoryImpl implements ProductRepository {
 
   ProductRepositoryImpl(this.remote, this.cache);
 
-  Product _toEntity(dynamic m) {
-    return Product(
-      id: m.id,
-      title: m.title,
-      price: m.price,
-      isFavorited: m.isFavorited,
-    );
-  }
-
   @override
   Future<List<Product>> getProducts() async {
     try {
-      final remoteModels = await remote.getProducts();
-      final cachedModels = cache.get() ?? [];
-
-      final favoritesById = {for (final c in cachedModels) c.id: c.isFavorited};
-
-      final merged = remoteModels
-          .map((m) => m.copyWith(isFavorited: favoritesById[m.id] ?? false))
+      final models = await remote.getProducts();
+      cache.save(models);
+      return models
+          .map((m) => Product(
+                id: m.id,
+                title: m.title,
+                price: m.price,
+                image: m.image,
+                isFavorite: false,
+              ))
           .toList();
-
-      cache.save(merged);
-
-      return merged.map(_toEntity).toList();
-    } catch (_) {
+    } catch (e) {
       final cached = cache.get();
       if (cached != null) {
-        return cached.map(_toEntity).toList();
+        return cached
+            .map((m) => Product(
+                  id: m.id,
+                  title: m.title,
+                  price: m.price,
+                  image: m.image,
+                ))
+            .toList();
       }
+      throw Failure("Não foi possível carregar os produtos");
     }
-    throw Failure("Nao foi possivel carregar os produtos!");
   }
 
   @override
-  Future<Product> toggleFavorite(int productId) {
-    final cached = cache.get();
-
-    if (cached == null || cached.isEmpty) {
-      return Future.error(Failure("Nenhum produto em cache para favoritar"));
+  Future<Product> addProduct(Product product) async {
+    try {
+      final model = ProductModel(
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        image: product.image,
+      );
+      final resultModel = await remote.addProduct(model);
+      return Product(
+        id: resultModel.id,
+        title: resultModel.title,
+        price: resultModel.price,
+        image: resultModel.image,
+      );
+    } catch (e) {
+      throw Failure("Erro ao adicionar produto");
     }
+  }
 
-    final index = cached.indexWhere((p) => p.id == productId);
-
-    if (index == -1) {
-      return Future.error(Failure("Produto não encontrado: $productId"));
+  @override
+  Future<Product> updateProduct(Product product) async {
+    try {
+      final model = ProductModel(
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        image: product.image,
+      );
+      final resultModel = await remote.updateProduct(model);
+      return Product(
+        id: resultModel.id,
+        title: resultModel.title,
+        price: resultModel.price,
+        image: resultModel.image,
+      );
+    } catch (e) {
+      throw Failure("Erro ao atualizar produto");
     }
+  }
 
-    final current = cached[index];
-    final updated = current.copyWith(isFavorited: !current.isFavorited);
-
-    final updatedList = List.of(cached);
-    updatedList[index] = updated;
-
-    cache.save(updatedList);
-
-    return Future.value(_toEntity(updated));
+  @override
+  Future<void> deleteProduct(int id) async {
+    try {
+      await remote.deleteProduct(id);
+    } catch (e) {
+      throw Failure("Erro ao excluir produto");
+    }
   }
 }
