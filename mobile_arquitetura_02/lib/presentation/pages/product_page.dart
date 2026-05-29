@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:product_app/presentation/pages/product_detail_page.dart';
-import 'package:product_app/presentation/pages/product_form_page.dart';
+import 'package:mobile_arquitetura_02/presentation/pages/product_detail_page.dart';
+import 'package:mobile_arquitetura_02/presentation/pages/product_form_page.dart';
 import 'package:provider/provider.dart';
-import 'package:product_app/presentation/viewmodel/product_viewmodel.dart';
+import 'package:mobile_arquitetura_02/presentation/viewmodel/product_viewmodel.dart';
 
 class ProductPage extends StatefulWidget {
   const ProductPage({super.key});

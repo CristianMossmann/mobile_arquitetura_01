@@ -1,4 +1,4 @@
-import 'package:product_app/data/models/product_model.dart';
+import 'package:mobile_arquitetura_02/data/models/product_model.dart';
 
 class ProductCacheDatasource {
   List<ProductModel>? _cache;

@@ -1,11 +1,11 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:mobile_arquitetura_02/data/datasources/product_cache_datasource.dart';
+import 'package:mobile_arquitetura_02/data/datasources/product_remote_datasource.dart';
+import 'package:mobile_arquitetura_02/data/repositories/product_repository_impl.dart';
+import 'package:mobile_arquitetura_02/presentation/pages/product_page.dart';
+import 'package:mobile_arquitetura_02/presentation/viewmodel/product_viewmodel.dart';
 import 'package:provider/provider.dart';
-import 'package:product_app/data/datasources/product_cache_datasource.dart';
-import 'package:product_app/data/datasources/product_remote_datasource.dart';
-import 'package:product_app/data/repositories/product_repository_impl.dart';
-import 'package:product_app/presentation/pages/product_page.dart';
-import 'package:product_app/presentation/viewmodel/product_viewmodel.dart';
 
 void main() {
   runApp(const MyApp());
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       home: ChangeNotifierProvider(
         create: (context) => ProductViewModel(
           ProductRepositoryImpl(
-            ProductRemoteDatasource(Dio()),
+            ProductRemoteDatasource(http.Client()),
             ProductCacheDatasource(),
           ),
         ),

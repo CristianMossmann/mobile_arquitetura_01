@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:product_app/domain/entities/product.dart';
+import 'package:mobile_arquitetura_02/domain/entities/product.dart';
 
 class ProductDetailPage extends StatelessWidget {
   final Product product;

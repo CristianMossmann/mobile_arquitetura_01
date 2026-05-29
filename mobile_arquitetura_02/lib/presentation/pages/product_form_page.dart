@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:product_app/domain/entities/product.dart';
-import 'package:product_app/presentation/viewmodel/product_viewmodel.dart';
+import 'package:mobile_arquitetura_02/domain/entities/product.dart';
+import 'package:mobile_arquitetura_02/presentation/viewmodel/product_viewmodel.dart';
 import 'package:provider/provider.dart';
 
 class ProductFormPage extends StatefulWidget {
