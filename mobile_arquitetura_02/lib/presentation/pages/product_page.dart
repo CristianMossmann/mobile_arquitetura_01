@@ -39,15 +39,8 @@ class _ProductPageState extends State<ProductPage> {
         title: const Text("Products"),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ProductFormPage(),
-                ),
-              );
-            },
+            icon: const Icon(Icons.refresh),
+            onPressed: viewModel.loadProducts,
           ),
         ],
       ),
@@ -143,8 +136,16 @@ class _ProductPageState extends State<ProductPage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: viewModel.loadProducts,
-        child: const Icon(Icons.refresh),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const ProductFormPage(),
+            ),
+          );
+        },
+        tooltip: "Cadastrar produto",
+        child: const Icon(Icons.add),
       ),
     );
   }
