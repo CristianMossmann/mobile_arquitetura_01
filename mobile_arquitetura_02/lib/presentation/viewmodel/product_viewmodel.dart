@@ -1,88 +1,34 @@
-import 'package:flutter/material.dart';
-import 'package:mobile_arquitetura_02/domain/entities/product.dart';
-import 'package:mobile_arquitetura_02/domain/repositories/product_repository.dart';
-import 'package:mobile_arquitetura_02/presentation/viewmodel/product_state.dart';
+import 'package:flutter/foundation.dart';
+import 'package:mobile_arquitetura_01/domain/entities/product.dart';
+import 'package:mobile_arquitetura_01/domain/repositories/product_repository.dart';
+import 'package:mobile_arquitetura_01/presentation/viewmodel/product_state.dart';
 
 class ProductViewModel extends ChangeNotifier {
   final ProductRepository repository;
   ProductState _state = const ProductState();
-  
+
   ProductState get state => _state;
-  
+
   ProductViewModel(this.repository);
-  
+
   Future<void> loadProducts() async {
-    _state = _state.copyWith(isLoading: true, error: null);
+    _state = _state.copyWith(isLoading: true, clearError: true);
     notifyListeners();
-    
+
     try {
       final products = await repository.getProducts();
+      final preservedFavorites = {
+        for (final p in _state.products.where((p) => p.isFavorite)) p.id,
+      };
+      final merged = products
+          .map((p) => preservedFavorites.contains(p.id)
+              ? p.copyWith(isFavorite: true)
+              : p)
+          .toList();
       _state = _state.copyWith(
         isLoading: false,
-        products: products,
-      );
-    } catch (e) {
-      _state = _state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
-    }
-    notifyListeners();
-  }
-
-  Future<void> addProduct(Product product) async {
-    _state = _state.copyWith(isLoading: true, error: null);
-    notifyListeners();
-    
-    try {
-      final newProduct = await repository.addProduct(product);
-      _state = _state.copyWith(
-        isLoading: false,
-        products: [..._state.products, newProduct],
-      );
-    } catch (e) {
-      _state = _state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
-    }
-    notifyListeners();
-  }
-
-  Future<void> updateProduct(Product product) async {
-    _state = _state.copyWith(isLoading: true, error: null);
-    notifyListeners();
-    
-    try {
-      final updatedProduct = await repository.updateProduct(product);
-      final updatedProducts = _state.products.map((p) {
-        return p.id == updatedProduct.id ? updatedProduct : p;
-      }).toList();
-      
-      _state = _state.copyWith(
-        isLoading: false,
-        products: updatedProducts,
-      );
-    } catch (e) {
-      _state = _state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
-    }
-    notifyListeners();
-  }
-
-  Future<void> deleteProduct(int id) async {
-    _state = _state.copyWith(isLoading: true, error: null);
-    notifyListeners();
-    
-    try {
-      await repository.deleteProduct(id);
-      final updatedProducts = _state.products.where((p) => p.id != id).toList();
-      
-      _state = _state.copyWith(
-        isLoading: false,
-        products: updatedProducts,
+        products: merged,
+        clearError: true,
       );
     } catch (e) {
       _state = _state.copyWith(
@@ -94,14 +40,22 @@ class ProductViewModel extends ChangeNotifier {
   }
 
   void toggleFavorite(int productId) {
-    final updatedProducts = _state.products.map((product) {
+    final updated = _state.products.map((product) {
       if (product.id == productId) {
         return product.copyWith(isFavorite: !product.isFavorite);
       }
       return product;
     }).toList();
-    
-    _state = _state.copyWith(products: updatedProducts);
+
+    _state = _state.copyWith(products: updated);
+    notifyListeners();
+  }
+
+  List<Product> get favorites =>
+      _state.products.where((p) => p.isFavorite).toList();
+
+  void reset() {
+    _state = const ProductState();
     notifyListeners();
   }
 }

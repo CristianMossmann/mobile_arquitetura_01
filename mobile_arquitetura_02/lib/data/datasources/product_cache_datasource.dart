@@ -1,4 +1,4 @@
-import 'package:mobile_arquitetura_02/data/models/product_model.dart';
+import 'package:mobile_arquitetura_01/data/models/product_model.dart';
 
 class ProductCacheDatasource {
   List<ProductModel>? _cache;
@@ -6,8 +6,6 @@ class ProductCacheDatasource {
   void save(List<ProductModel> products) {
     _cache = products;
   }
-  
-  List<ProductModel>? get() {
-    return _cache;
-  }
+
+  List<ProductModel>? get() => _cache;
 }
